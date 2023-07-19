@@ -119,9 +119,13 @@ var controller = {
   },
 
   uploadImage: function (req, res) {
+    // console.log("a");
+    // console.log(req.files);
     if (req.files) {
       var projectId = req.params.id;
       var fileName = "Imagen no subida...";
+      // console.log(projectId);
+      // console.log("b");
 
       if (req.files) {
         var filePath = req.files.image.path;
@@ -130,29 +134,24 @@ var controller = {
         var extSplit = fileName.split(".");
         var fileExt = extSplit[1];
 
+        // console.log("c");
         if (
           fileExt == "png" ||
           fileExt == "jpg" ||
           fileExt == "jpeg" ||
           fileExt == "gif"
         ) {
-          try {
-            const projectUpdated = Project.findByIdAndUpdate(
-              projectId,
-              { image: fileName },
-              { new: true },
-              (err, projectUpdated)
-            );
-            if (!projectUpdated)
-              return res.status(404).send({
-                message: "El proyecto no existe y no se ha actualizado",
-              });
-            return res.status(200).send({ project: projectUpdated });
-          } catch (err) {
-            return res
-              .status(500)
-              .send({ message: "La imagen no se ha subido" });
-          }
+          // console.log("d");
+          Project.findByIdAndUpdate(projectId, { image: fileName })
+          .then((projectUpdated)=>{
+                  // console.log("e");
+                    return res.status(200).send({                      
+                        project: projectUpdated
+                    })
+                })
+                .catch(()=> {
+                    return res.status(404).send({message:'No existe el proyecto'})
+                })
         } else {
           fs.unlink(filePath, (err) => {
             return res
@@ -161,48 +160,6 @@ var controller = {
           });
         }
       }
-      //   var filePath = req.files.image.path;
-      //   var fileSplit = filePath.split("\\");
-      //   var fileName = fileSplit[1];
-      //   var extSplit = fileName.split(".");
-      //   var fileExt = extSplit[1];
-
-      //   if (
-      //     fileExt == "png" ||
-      //     fileExt == "jpg" ||
-      //     fileExt == "jpeg" ||
-      //     fileExt == "gif"
-      //   ) {
-      //     Project.findByIdAndUpdate(
-      //       projectId,
-      //       { image: fileName },
-      //       { new: true },
-      //       (err, projectUpdated) => {
-      //         if (err)
-      //           return res
-      //             .status(500)
-      //             .send({ message: "La imagen no se ha subido" });
-
-      //         if (!projectUpdated)
-      //           return res.status(404).send({
-      //             message: "El proyecto no existe y no se ha asignado la imagen",
-      //           });
-
-      //         return res.status(200).send({
-      //           project: projectUpdated,
-      //         });
-      //       }
-      //     );
-      //   } else {
-      //     fs.unlink(filePath, (err) => {
-      //       return res.status(200).send({ message: "La extensión no es válida" });
-      //     });
-      //   }
-      // } else {
-      //   return res.status(200).send({
-      //     message: fileName,
-      //   });
-      // }
     }
   },
 
